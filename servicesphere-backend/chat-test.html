@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat Test</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+  <h2>Socket Chat Test</h2>
+
+  <div>
+    <label>Your User ID:</label>
+    <input id="userId" placeholder="your user id" />
+    <button onclick="joinRoom()">Join</button>
+  </div>
+
+  <br>
+
+  <div>
+    <label>Receiver User ID:</label>
+    <input id="receiverId" placeholder="receiver user id" />
+  </div>
+
+  <br>
+
+  <div>
+    <input id="message" placeholder="type message" />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <h3>Messages:</h3>
+  <div id="chat"></div>
+
+  <script>
+    const socket = io("http://localhost:5000");
+
+    function joinRoom() {
+      const userId = document.getElementById("userId").value;
+      socket.emit("join", userId);
+      alert("Joined room: " + userId);
+    }
+
+    function sendMessage() {
+      const senderId = document.getElementById("userId").value;
+      const receiverId = document.getElementById("receiverId").value;
+      const text = document.getElementById("message").value;
+
+      socket.emit("sendMessage", {
+        senderId,
+        receiverId,
+        text
+      });
+
+      document.getElementById("chat").innerHTML +=
+        "<p><b>You:</b> " + text + "</p>";
+    }
+
+    socket.on("receiveMessage", (data) => {
+      document.getElementById("chat").innerHTML +=
+        "<p><b>Friend:</b> " + data.text + "</p>";
+    });
+  </script>
+</body>
+</html>
