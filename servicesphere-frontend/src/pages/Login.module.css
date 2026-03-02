@@ -1,0 +1,260 @@
+/* =============================================
+   Login Page — ServiceSphere
+   ============================================= */
+
+.container {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  /* Background image */
+  background-image: url('https://images.pexels.com/photos/10522287/pexels-photo-10522287.jpeg?auto=compress&cs=tinysrgb&w=1600');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Dark overlay over the bg image */
+.container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-overlay);
+  z-index: 0;
+}
+
+/* ---- Navbar ---- */
+.navbar {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 48px;
+}
+
+.logo {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--color-text-light);
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.logoStrong {
+  font-weight: 700;
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  list-style: none;
+}
+
+.navLinks a {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--color-text-light);
+  letter-spacing: 0.03em;
+  transition: opacity var(--transition-fast);
+}
+
+.navLinks a:hover {
+  opacity: 0.65;
+}
+
+/* ---- Main content (centered) ---- */
+.main {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl) var(--space-md);
+  gap: 32px;
+}
+
+/* ---- Hero typography ---- */
+.heroSubtitle {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.heroHeading {
+  text-align: center;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.heroHeadingItalic {
+  display: block;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(2.6rem, 6vw, 4.2rem);
+  color: var(--color-text-light);
+}
+
+.heroHeadingBold {
+  display: block;
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-weight: 800;
+  font-size: clamp(2.6rem, 6vw, 4.2rem);
+  color: var(--color-text-light);
+  letter-spacing: -0.02em;
+}
+
+/* ---- Glass login card ---- */
+.card {
+  width: 100%;
+  max-width: 360px;
+  background: var(--color-card-bg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-md);
+  padding: 36px 32px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* ---- Form inputs ---- */
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.inputLabel {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.input {
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  font-size: 0.92rem;
+  color: var(--color-text-light);
+  font-family: var(--font-sans);
+  outline: none;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+  width: 100%;
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.input:focus {
+  border-color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.11);
+}
+
+/* ---- Error message ---- */
+.error {
+  font-size: 0.8rem;
+  color: var(--color-error);
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+/* ---- Submit button ---- */
+.button {
+  margin-top: 6px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-text-dark);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  box-shadow: var(--shadow-btn);
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.button:hover {
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+/* ---- Register link ---- */
+.registerText {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.registerText a {
+  color: var(--color-text-light);
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+  padding-bottom: 1px;
+  transition: border-color var(--transition-fast);
+}
+
+.registerText a:hover {
+  border-color: var(--color-text-light);
+}
+
+/* ---- Footer bar ---- */
+.footer {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 48px;
+}
+
+.footerTag {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.06em;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 480px) {
+  .navbar {
+    padding: 20px 24px;
+  }
+
+  .navLinks {
+    gap: 20px;
+  }
+
+  .footer {
+    padding: 16px 24px;
+  }
+
+  .card {
+    padding: 28px 22px;
+  }
+}

@@ -1,0 +1,68 @@
+/* =============================================
+   Global Design Tokens — ServiceSphere
+   ============================================= */
+:root {
+  /* Colors */
+  --color-primary: #c4956a;
+  --color-primary-dark: #a8784d;
+  --color-text-light: #ffffff;
+  --color-text-muted: rgba(255, 255, 255, 0.6);
+  --color-text-dark: #1a1708;
+  --color-card-bg: rgba(255, 255, 255, 0.08);
+  --color-card-border: rgba(255, 255, 255, 0.18);
+  --color-input-bg: rgba(255, 255, 255, 0.07);
+  --color-input-border: rgba(255, 255, 255, 0.25);
+  --color-overlay: rgba(10, 7, 3, 0.42);
+  --color-error: #f87171;
+
+  /* Typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+  --font-serif: Georgia, 'Times New Roman', serif;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 10px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.35);
+  --shadow-btn: 0 4px 15px rgba(0, 0, 0, 0.2);
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-med: 0.35s ease;
+}
+
+/* =============================================
+   Global Reset & Base
+   ============================================= */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--color-text-light);
+  background: #1a1708;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
