@@ -13,8 +13,9 @@
   /* Background image */
   background-image: url('https://images.pexels.com/photos/10522287/pexels-photo-10522287.jpeg?auto=compress&cs=tinysrgb&w=1600');
   background-size: cover;
-  background-position: center;
+  background-position: center center;
   background-repeat: no-repeat;
+  animation: pageFadeIn 0.45s ease;
 }
 
 /* Dark overlay over the bg image */
@@ -22,8 +23,23 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: var(--color-overlay);
+  background:
+    radial-gradient(1200px 480px at 10% 90%, rgba(0, 0, 0, 0.36), transparent 60%),
+    radial-gradient(900px 420px at 90% 10%, rgba(255, 170, 85, 0.16), transparent 58%),
+    var(--color-overlay);
   z-index: 0;
+}
+
+.container::after {
+  content: '';
+  position: absolute;
+  inset: -12% -10%;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(500px 300px at 18% 22%, rgba(255, 255, 255, 0.07), transparent 65%),
+    radial-gradient(700px 350px at 82% 76%, rgba(255, 255, 255, 0.06), transparent 64%);
+  animation: ambientShift 14s ease-in-out infinite alternate;
 }
 
 /* ---- Navbar ---- */
@@ -81,6 +97,7 @@
   justify-content: center;
   padding: var(--space-xl) var(--space-md);
   gap: 32px;
+  animation: riseIn 0.45s ease;
 }
 
 /* ---- Hero typography ---- */
@@ -124,10 +141,10 @@
   background: var(--color-card-bg);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  border: 1px solid var(--color-card-border);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--radius-md);
   padding: 36px 32px;
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-card), 0 16px 34px rgba(0, 0, 0, 0.24);
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
@@ -230,8 +247,9 @@
   z-index: 10;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   padding: 20px 48px;
+  gap: 20px;
 }
 
 .footerTag {
@@ -252,9 +270,39 @@
 
   .footer {
     padding: 16px 24px;
+    justify-content: center;
   }
 
   .card {
     padding: 28px 22px;
+  }
+}
+
+@keyframes ambientShift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(0, -1.5%, 0) scale(1.04);
+  }
+}
+
+@keyframes riseIn {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0.85;
+  }
+  to {
+    opacity: 1;
   }
 }

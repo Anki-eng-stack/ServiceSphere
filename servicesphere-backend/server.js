@@ -10,12 +10,22 @@ const bookingRoutes = require("./routes/bookingRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const paymentController = require("./controllers/paymentController");
 
 
 const app = express();
 
 // middlewares
 app.use(cors());
+
+// Stripe webhook must use raw body before JSON parser for signature verification.
+app.post(
+  "/api/payments/webhook",
+  express.raw({ type: "application/json" }),
+  paymentController.handleStripeWebhook
+);
+
 app.use(express.json());
 
 // mongodb connection
@@ -39,6 +49,7 @@ app.use("/api/bookings", bookingRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 
 // create server for socket.io

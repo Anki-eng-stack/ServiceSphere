@@ -1,6 +1,8 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 const User = require("../models/User");
+const { sendMail } = require("../utils/mailer");
 
 const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -86,6 +88,75 @@ exports.getProfile = async (req, res) => {
     return res.json({ user: safeUser });
   } catch (err) {
     console.error("getProfile error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email: String(email).toLowerCase().trim() });
+    // Keep response generic to avoid account enumeration
+    if (!user) {
+      return res.json({ message: "If the account exists, OTP has been sent to email" });
+    }
+
+    const otp = crypto.randomInt(100000, 1000000).toString();
+    const otpHash = crypto.createHash("sha256").update(otp).digest("hex");
+
+    user.resetOtp = otpHash;
+    user.resetOtpExpire = new Date(Date.now() + 10 * 60 * 1000); // 10 min
+    await user.save();
+
+    await sendMail({
+      to: user.email,
+      subject: "Password Reset OTP",
+      text: `Your ServiceSphere OTP is ${otp}. It expires in 10 minutes.`
+    });
+
+    return res.json({ message: "If the account exists, OTP has been sent to email" });
+  } catch (err) {
+    console.error("forgotPassword error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { email, otp, password } = req.body;
+    if (!email || !otp || !password) {
+      return res.status(400).json({ message: "email, otp and password are required" });
+    }
+    if (String(password).length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
+
+    const user = await User.findOne({ email: String(email).toLowerCase().trim() });
+    const otpHash = crypto.createHash("sha256").update(String(otp)).digest("hex");
+
+    if (
+      !user ||
+      !user.resetOtp ||
+      user.resetOtp !== otpHash ||
+      !user.resetOtpExpire ||
+      user.resetOtpExpire.getTime() < Date.now()
+    ) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+    user.resetOtp = undefined;
+    user.resetOtpExpire = undefined;
+    await user.save();
+
+    return res.json({ message: "Password reset successful" });
+  } catch (err) {
+    console.error("resetPassword error:", err);
     return res.status(500).json({ message: "Server error" });
   }
 };

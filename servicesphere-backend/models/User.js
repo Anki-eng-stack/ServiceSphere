@@ -25,6 +25,12 @@ const userSchema = new mongoose.Schema(
     },
     location: {
       type: String
+    },
+    resetOtp: {
+      type: String
+    },
+    resetOtpExpire: {
+      type: Date
     }
   },
   { timestamps: true }

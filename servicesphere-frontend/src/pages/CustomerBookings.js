@@ -142,7 +142,6 @@ function CustomerBookings() {
         <span className={shared.footerTag}>
           {"\u00A9"} {new Date().getFullYear()} ServiceSphere
         </span>
-        <span className={shared.footerTag}>Photo by Yusuf P on Pexels</span>
       </footer>
     </div>
   );

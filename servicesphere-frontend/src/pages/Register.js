@@ -141,7 +141,6 @@ function Register() {
 
       <footer className={shared.footer}>
         <span className={shared.footerTag}>© 2025 ServiceSphere</span>
-        <span className={shared.footerTag}>Photo by Yusuf P on Pexels</span>
       </footer>
     </div>
   );

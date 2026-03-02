@@ -9,12 +9,16 @@ import ProviderServices from "./pages/ProviderServices";
 import ProviderBookings from "./pages/ProviderBookings";
 import ProviderDashboard from "./pages/ProviderDashboard";
 import CustomerBookings from "./pages/CustomerBookings";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/services" element={<Services />} />
         <Route path="/book/:id" element={<BookService />} />
         <Route path="/chat/:bookingId" element={<Chat />} />

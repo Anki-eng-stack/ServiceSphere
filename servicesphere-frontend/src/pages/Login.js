@@ -27,11 +27,12 @@ function Login() {
 
   return (
     <div className={styles.container}>
-      {/* Navbar */}
       <nav className={styles.navbar}>
         <div className={styles.logo}>
           service<span className={styles.logoStrong}>sphere</span>
-          <sup style={{ fontSize: "0.45em", marginLeft: "1px", opacity: 0.7 }}>®</sup>
+          <sup style={{ fontSize: "0.45em", marginLeft: "1px", opacity: 0.7 }}>
+            R
+          </sup>
         </div>
         <ul className={styles.navLinks}>
           <li><Link to="/">Home</Link></li>
@@ -40,7 +41,6 @@ function Login() {
         </ul>
       </nav>
 
-      {/* Main */}
       <main className={styles.main}>
         <p className={styles.heroSubtitle}>A service marketplace platform</p>
 
@@ -49,7 +49,6 @@ function Login() {
           <span className={styles.heroHeadingBold}>back.</span>
         </h1>
 
-        {/* Login card */}
         <form className={styles.card} onSubmit={handleLogin} noValidate>
           {error && <p className={styles.error}>{error}</p>}
 
@@ -72,26 +71,29 @@ function Login() {
               id="password"
               className={styles.input}
               type="password"
-              placeholder="••••••••"
+              placeholder="********"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
 
-          <button type="submit" className={styles.button}>Sign in →</button>
+          <button type="submit" className={styles.button}>Sign in -&gt;</button>
 
           <p className={styles.registerText}>
-            Don't have an account?{" "}
-            <Link to="/register">Create one</Link>
+            <Link to="/forgot-password">Forgot password?</Link>
+          </p>
+
+          <p className={styles.registerText}>
+            Do not have an account? <Link to="/register">Create one</Link>
           </p>
         </form>
       </main>
 
-      {/* Footer */}
       <footer className={styles.footer}>
-        <span className={styles.footerTag}>© 2025 ServiceSphere</span>
-        <span className={styles.footerTag}>Photo by Yusuf P on Pexels</span>
+        <span className={styles.footerTag}>
+          {"\u00A9"} {new Date().getFullYear()} ServiceSphere
+        </span>
       </footer>
     </div>
   );
