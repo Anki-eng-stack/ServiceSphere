@@ -418,6 +418,12 @@
   transform: translateY(0);
 }
 
+.btnPrimary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .btnDanger {
   padding: 12px;
   background: rgba(239, 68, 68, 0.75);
@@ -443,6 +449,12 @@
 
 .btnDanger:active {
   transform: translateY(0);
+}
+
+.btnDanger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .btnSuccess {
@@ -472,12 +484,39 @@
   transform: translateY(0);
 }
 
+.btnSuccess:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* ---- Feedback ---- */
 .error {
   font-size: 0.8rem;
   color: var(--color-error);
   text-align: center;
   letter-spacing: 0.02em;
+}
+
+.success {
+  font-size: 0.8rem;
+  color: #86efac;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.chipStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--radius-full);
+  padding: 7px 12px;
 }
 
 /* ---- Footnote links (below forms) ---- */
@@ -508,6 +547,12 @@
   gap: 18px;
 }
 
+.actionsRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 /* ---- Divider ---- */
 .divider {
   border: none;
@@ -523,6 +568,39 @@
   font-size: 0.9rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.loaderWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 54px 16px;
+}
+
+.loaderOrb {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.18);
+  border-top-color: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
+  animation: spinLoader 0.9s linear infinite;
+}
+
+.loaderText {
+  margin: 0;
+  font-size: 0.76rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+@keyframes spinLoader {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ---- Footer ---- */

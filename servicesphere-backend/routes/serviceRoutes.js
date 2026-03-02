@@ -14,8 +14,16 @@ router.post(
 // Get all services (public)
 router.get("/", serviceController.getServices);
 
-// Get single service by id (public)
-router.get("/:id", serviceController.getServiceById);
+// Get services for logged-in provider
+router.get(
+  "/provider/me",
+  auth,
+  requireRole("provider"),
+  serviceController.getServicesByProvider
+);
+
+// Get services by provider id (public)
+router.get("/provider/:providerId", serviceController.getServicesByProvider);
 
 // Update service (owner or admin)
 router.put("/:id", auth, serviceController.updateService);
@@ -23,7 +31,7 @@ router.put("/:id", auth, serviceController.updateService);
 // Delete service (owner or admin)
 router.delete("/:id", auth, serviceController.deleteService);
 
-// Get services by provider (optional)
-router.get("/provider/:providerId", serviceController.getServicesByProvider);
+// Get single service by id (public)
+router.get("/:id", serviceController.getServiceById);
 
 module.exports = router;

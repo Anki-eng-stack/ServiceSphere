@@ -15,6 +15,9 @@ router.patch("/:id/accept", auth, requireRole("provider"), bookingController.acc
 // Provider completes booking
 router.patch("/:id/complete", auth, requireRole("provider"), bookingController.completeBooking);
 
+// Provider rejects booking
+router.patch("/:id/reject", auth, requireRole("provider"), bookingController.rejectBooking);
+
 // Customer cancels booking
 router.patch("/:id/cancel", auth, requireRole("customer"), bookingController.cancelBooking);
 

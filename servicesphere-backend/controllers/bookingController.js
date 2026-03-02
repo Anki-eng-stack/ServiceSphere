@@ -35,14 +35,24 @@ exports.getMyBookings = async (req, res) => {
   try {
     const user = req.user;
 
-    let filter = {};
-    if (user.role === "customer") filter.customer = user._id;
-    if (user.role === "provider") filter.provider = user._id;
+    let filter;
+    if (user.role === "customer") {
+      // Customer "My Bookings" should hide cancelled records.
+      filter = { customer: user._id, status: { $ne: "cancelled" } };
+    } else if (user.role === "provider") {
+      filter = { provider: user._id };
+    } else if (user.role === "admin") {
+      // "my bookings" should still be scoped to the logged-in user
+      filter = { $or: [{ customer: user._id }, { provider: user._id }] };
+    } else {
+      return res.status(403).json({ message: "Invalid user role for bookings" });
+    }
 
     const bookings = await Booking.find(filter)
       .populate("customer", "name email")
       .populate("provider", "name email")
-      .populate("service", "title price");
+      .populate("service", "title price")
+      .sort({ createdAt: -1 });
 
     return res.json({ bookings });
   } catch (err) {
@@ -61,6 +71,10 @@ exports.acceptBooking = async (req, res) => {
     // Only provider can accept
     if (booking.provider.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Not allowed" });
+    }
+
+    if (booking.status !== "pending") {
+      return res.status(400).json({ message: "Only pending bookings can be accepted" });
     }
 
     booking.status = "accepted";
@@ -85,12 +99,42 @@ exports.completeBooking = async (req, res) => {
       return res.status(403).json({ message: "Not allowed" });
     }
 
+    if (booking.status !== "accepted") {
+      return res.status(400).json({ message: "Only accepted bookings can be completed" });
+    }
+
     booking.status = "completed";
     await booking.save();
 
     return res.json({ booking });
   } catch (err) {
     console.error("completeBooking error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Provider rejects booking
+exports.rejectBooking = async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+    // Only provider can reject
+    if (booking.provider.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not allowed" });
+    }
+
+    if (booking.status !== "pending") {
+      return res.status(400).json({ message: "Only pending bookings can be rejected" });
+    }
+
+    booking.status = "cancelled";
+    await booking.save();
+
+    return res.json({ booking });
+  } catch (err) {
+    console.error("rejectBooking error:", err);
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -105,6 +149,10 @@ exports.cancelBooking = async (req, res) => {
     // Only customer can cancel
     if (booking.customer.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Not allowed" });
+    }
+
+    if (booking.status !== "pending") {
+      return res.status(400).json({ message: "Only pending bookings can be cancelled" });
     }
 
     booking.status = "cancelled";

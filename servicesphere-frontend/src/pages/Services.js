@@ -2,22 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import shared from "../styles/shared.module.css";
-import Navbar from "../components/Navbar";
+import AppNavbar from "../components/AppNavbar";
 
 function Services() {
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const isProvider = user?.role === "provider";
   const [services, setServices] = useState([]);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/");
-  };
-
-  const navLinks = [
-    { label: "Logout", onClick: logout, danger: true },
-  ];
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -40,7 +32,7 @@ function Services() {
 
   return (
     <div className={shared.page}>
-      <Navbar links={navLinks} />
+      <AppNavbar />
 
       <main className={shared.mainDash}>
         <div className={shared.sectionHeader}>
@@ -64,16 +56,21 @@ function Services() {
                 <h3 className={shared.dataCardTitle}>{service.title}</h3>
                 <p className={shared.dataCardMeta}>{service.description}</p>
                 <hr className={shared.divider} />
-                <div className={shared.priceTag}>₹{service.price}</div>
+                <div className={shared.priceTag}>Rs {service.price}</div>
                 <p className={shared.dataCardMeta}>
                   <b>Location:</b> {service.location}
                 </p>
-                <button
-                  className={shared.btnPrimary}
-                  onClick={() => navigate(`/book/${service._id}`)}
-                >
-                  Book Service →
-                </button>
+
+                {isProvider ? (
+                  <p className={shared.dataCardMeta}>Marketplace preview mode</p>
+                ) : (
+                  <button
+                    className={shared.btnPrimary}
+                    onClick={() => navigate(`/book/${service._id}`)}
+                  >
+                    Book Service ->
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -81,7 +78,9 @@ function Services() {
       </main>
 
       <footer className={shared.footer}>
-        <span className={shared.footerTag}>© 2025 ServiceSphere</span>
+        <span className={shared.footerTag}>
+          {"\u00A9"} {new Date().getFullYear()} ServiceSphere
+        </span>
         <span className={shared.footerTag}>Photo by Yusuf P on Pexels</span>
       </footer>
     </div>

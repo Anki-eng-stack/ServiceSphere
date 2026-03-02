@@ -8,6 +8,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import ProviderServices from "./pages/ProviderServices";
 import ProviderBookings from "./pages/ProviderBookings";
 import ProviderDashboard from "./pages/ProviderDashboard";
+import CustomerBookings from "./pages/CustomerBookings";
 function App() {
   return (
     <Router>
@@ -18,6 +19,7 @@ function App() {
         <Route path="/book/:id" element={<BookService />} />
         <Route path="/chat/:bookingId" element={<Chat />} />
         <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/my-bookings" element={<CustomerBookings />} />
         <Route path="/provider/dashboard" element={<ProviderDashboard />} />
         <Route path="/provider/services" element={<ProviderServices />} />
         <Route path="/provider/bookings" element={<ProviderBookings />} />

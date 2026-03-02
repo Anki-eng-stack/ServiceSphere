@@ -1,31 +1,19 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import io from "socket.io-client";
 import api from "../services/api";
 import shared from "../styles/shared.module.css";
 import chatStyles from "./Chat.module.css";
-import Navbar from "../components/Navbar";
+import AppNavbar from "../components/AppNavbar";
 
 const socket = io("http://localhost:5000");
 
 function Chat() {
   const { bookingId } = useParams();
-  const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
 
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/");
-  };
-
-  const navLinks = [
-    { label: "Services", to: "/services" },
-    { label: "Logout", onClick: logout, danger: true },
-  ];
 
   useEffect(() => {
     if (!bookingId) return;
@@ -66,7 +54,7 @@ function Chat() {
 
   return (
     <div className={shared.page}>
-      <Navbar links={navLinks} />
+      <AppNavbar />
 
       <div className={chatStyles.chatContainer}>
         <div className={chatStyles.chatWindow}>

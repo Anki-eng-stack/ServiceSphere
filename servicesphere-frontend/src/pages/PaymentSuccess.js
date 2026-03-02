@@ -1,15 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import shared from "../styles/shared.module.css";
-import Navbar from "../components/Navbar";
+import AppNavbar from "../components/AppNavbar";
 
 function PaymentSuccess() {
   const navigate = useNavigate();
 
-  const navLinks = [{ label: "Services", to: "/services" }];
-
   return (
     <div className={shared.page}>
-      <Navbar links={navLinks} />
+      <AppNavbar />
 
       <main className={shared.mainCenter}>
         <p className={shared.heroSubtitle}>Transaction complete</p>

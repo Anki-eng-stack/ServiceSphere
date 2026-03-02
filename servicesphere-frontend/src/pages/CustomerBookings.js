@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import shared from "../styles/shared.module.css";
 import AppNavbar from "../components/AppNavbar";
-import PageLoader from "../components/PageLoader";
 
-function ProviderBookings() {
+function CustomerBookings() {
+  const user = JSON.parse(localStorage.getItem("user") || "null");
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -19,10 +19,14 @@ function ProviderBookings() {
         setError("");
         const res = await api.get("/bookings/my");
         const allBookings = Array.isArray(res.data.bookings) ? res.data.bookings : [];
-        const activeBookings = allBookings.filter(
-          (booking) => booking.status !== "completed" && booking.status !== "cancelled"
+        const myBookings = allBookings.filter(
+          (booking) =>
+            booking?.customer?._id &&
+            user?.id &&
+            booking.customer._id.toString() === user.id.toString() &&
+            booking.status !== "cancelled"
         );
-        setBookings(activeBookings);
+        setBookings(myBookings);
       } catch (err) {
         setError("Failed to load bookings");
       } finally {
@@ -30,7 +34,7 @@ function ProviderBookings() {
       }
     };
     fetchBookings();
-  }, []);
+  }, [user?.id]);
 
   const getStatusClass = (status) => {
     if (status === "accepted") return shared.badgeSuccess;
@@ -40,33 +44,16 @@ function ProviderBookings() {
     return shared.badge;
   };
 
-  const updateBookingInList = (updatedBooking) => {
-    setBookings((prev) => {
-      if (
-        updatedBooking.status === "completed" ||
-        updatedBooking.status === "cancelled"
-      ) {
-        return prev.filter((booking) => booking._id !== updatedBooking._id);
-      }
-
-      return prev.map((booking) =>
-        booking._id === updatedBooking._id
-          ? { ...booking, ...updatedBooking }
-          : booking
-      );
-    });
-  };
-
-  const handleStatusAction = async (bookingId, action) => {
+  const cancelBooking = async (bookingId) => {
     try {
       setError("");
       setActionLoadingById((prev) => ({ ...prev, [bookingId]: true }));
-      const res = await api.patch(`/bookings/${bookingId}/${action}`);
+      const res = await api.patch(`/bookings/${bookingId}/cancel`);
       if (res.data?.booking) {
-        updateBookingInList(res.data.booking);
+        setBookings((prev) => prev.filter((booking) => booking._id !== bookingId));
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Booking action failed");
+      setError(err.response?.data?.message || "Could not cancel booking");
     } finally {
       setActionLoadingById((prev) => ({ ...prev, [bookingId]: false }));
     }
@@ -79,7 +66,7 @@ function ProviderBookings() {
       <main className={shared.mainDash}>
         <div className={shared.sectionHeader}>
           <h2 className={shared.pageTitle}>
-            <span className={shared.pageTitleItalic}>Provider</span>
+            <span className={shared.pageTitleItalic}>My</span>
             <span className={shared.pageTitleBold}>Bookings</span>
           </h2>
         </div>
@@ -87,9 +74,9 @@ function ProviderBookings() {
         {error && <p className={shared.error}>{error}</p>}
 
         {loading ? (
-          <PageLoader label="Loading active bookings..." />
+          <p className={shared.emptyState}>Loading bookings...</p>
         ) : bookings.length === 0 ? (
-          <p className={shared.emptyState}>No active bookings to track.</p>
+          <p className={shared.emptyState}>No bookings yet.</p>
         ) : (
           <div className={shared.grid}>
             {bookings.map((booking) => {
@@ -101,11 +88,11 @@ function ProviderBookings() {
                   </span>
                   <h3 className={shared.dataCardTitle}>{booking.service?.title}</h3>
                   <p className={shared.dataCardMeta}>
-                    <b>Customer:</b> {booking.customer?.name}
+                    <b>Provider:</b> {booking.provider?.name}
                   </p>
-                  {booking.customer?.email && (
+                  {booking.provider?.email && (
                     <p className={shared.dataCardMeta}>
-                      <b>Email:</b> {booking.customer.email}
+                      <b>Email:</b> {booking.provider.email}
                     </p>
                   )}
                   {booking.date && (
@@ -126,41 +113,22 @@ function ProviderBookings() {
                   <hr className={shared.divider} />
 
                   <div className={shared.actionsRow}>
-                    {booking.status === "pending" && (
-                      <>
-                        <button
-                          className={shared.btnSuccess}
-                          onClick={() => handleStatusAction(booking._id, "accept")}
-                          disabled={isActionLoading}
-                        >
-                          {isActionLoading ? "Updating..." : "Accept Booking"}
-                        </button>
-                        <button
-                          className={shared.btnDanger}
-                          onClick={() => handleStatusAction(booking._id, "reject")}
-                          disabled={isActionLoading}
-                        >
-                          {isActionLoading ? "Updating..." : "Reject Booking"}
-                        </button>
-                      </>
-                    )}
-
-                    {booking.status === "accepted" && (
-                      <button
-                        className={shared.btnPrimary}
-                        onClick={() => handleStatusAction(booking._id, "complete")}
-                        disabled={isActionLoading}
-                      >
-                        {isActionLoading ? "Updating..." : "Mark Completed"}
-                      </button>
-                    )}
-
                     <button
                       className={shared.btnSuccess}
                       onClick={() => navigate(`/chat/${booking._id}`)}
                     >
                       Open Chat ->
                     </button>
+
+                    {booking.status === "pending" && (
+                      <button
+                        className={shared.btnDanger}
+                        onClick={() => cancelBooking(booking._id)}
+                        disabled={isActionLoading}
+                      >
+                        {isActionLoading ? "Updating..." : "Cancel Booking"}
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -179,4 +147,4 @@ function ProviderBookings() {
   );
 }
 
-export default ProviderBookings;
+export default CustomerBookings;

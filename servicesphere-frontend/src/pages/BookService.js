@@ -2,28 +2,23 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import shared from "../styles/shared.module.css";
-import Navbar from "../components/Navbar";
+import AppNavbar from "../components/AppNavbar";
 
 function BookService() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user") || "null");
   const [service, setService] = useState(null);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [error, setError] = useState("");
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/");
-  };
-
-  const navLinks = [
-    { label: "Services", to: "/services" },
-    { label: "Logout", onClick: logout, danger: true },
-  ];
-
   useEffect(() => {
+    if (user?.role === "provider") {
+      navigate("/services", { replace: true });
+      return;
+    }
+
     const fetchService = async () => {
       try {
         const res = await api.get(`/services/${id}`);
@@ -33,7 +28,7 @@ function BookService() {
       }
     };
     fetchService();
-  }, [id]);
+  }, [id, navigate, user?.role]);
 
   const handleBooking = async (e) => {
     e.preventDefault();
@@ -51,7 +46,7 @@ function BookService() {
   if (!service) {
     return (
       <div className={shared.page}>
-        <Navbar links={navLinks} />
+        <AppNavbar />
         <main className={shared.mainCenter}>
           <p className={shared.heroSubtitle}>
             {error || "Loading service details…"}
@@ -63,7 +58,7 @@ function BookService() {
 
   return (
     <div className={shared.page}>
-      <Navbar links={navLinks} />
+      <AppNavbar />
 
       <main className={shared.mainCenter}>
         <p className={shared.heroSubtitle}>Confirm your appointment</p>

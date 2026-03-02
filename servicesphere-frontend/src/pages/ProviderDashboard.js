@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import shared from "../styles/shared.module.css";
-import Navbar from "../components/Navbar";
+import AppNavbar from "../components/AppNavbar";
+import PageLoader from "../components/PageLoader";
 
 function ProviderDashboard() {
   const navigate = useNavigate();
@@ -10,18 +11,6 @@ function ProviderDashboard() {
   const [bookings, setBookings] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/");
-  };
-
-  const navLinks = [
-    { label: "My Services", onClick: () => navigate("/provider/services") },
-    { label: "My Bookings", onClick: () => navigate("/provider/bookings") },
-    { label: "Logout", onClick: logout, danger: true },
-  ];
 
   useEffect(() => {
     const loadDashboard = async () => {
@@ -63,7 +52,8 @@ function ProviderDashboard() {
   }, []);
 
   const stats = useMemo(() => {
-    const confirmed = bookings.filter((b) => b.status === "confirmed").length;
+    const accepted = bookings.filter((b) => b.status === "accepted").length;
+    const completed = bookings.filter((b) => b.status === "completed").length;
     const pending = bookings.filter((b) => b.status === "pending").length;
     const cancelled = bookings.filter((b) => b.status === "cancelled").length;
 
@@ -71,14 +61,15 @@ function ProviderDashboard() {
       { label: "Active Services", value: services.length },
       { label: "Total Bookings", value: bookings.length },
       { label: "Pending Requests", value: pending },
-      { label: "Confirmed Jobs", value: confirmed },
+      { label: "Accepted Jobs", value: accepted },
+      { label: "Completed Jobs", value: completed },
       { label: "Cancelled", value: cancelled },
     ];
   }, [services, bookings]);
 
   return (
     <div className={shared.page}>
-      <Navbar links={navLinks} />
+      <AppNavbar />
 
       <main className={shared.mainDash}>
         <div className={shared.sectionHeader}>
@@ -91,7 +82,7 @@ function ProviderDashboard() {
         {error && <p className={shared.error}>{error}</p>}
 
         {loading ? (
-          <p className={shared.emptyState}>Loading dashboard...</p>
+          <PageLoader label="Loading dashboard..." />
         ) : (
           <>
             <div className={shared.grid} style={{ marginBottom: 22 }}>
@@ -120,7 +111,7 @@ function ProviderDashboard() {
                   Add, edit, and organize the services visible to customers.
                 </p>
                 <button
-                  className={shared.btnPrimary}
+                  className={shared.btnSuccess}
                   onClick={() => navigate("/provider/services")}
                 >
                   Open Services
@@ -146,7 +137,7 @@ function ProviderDashboard() {
                   Check the customer side of the platform and current listings.
                 </p>
                 <button
-                  className={shared.btnPrimary}
+                  className={shared.btnSuccess}
                   onClick={() => navigate("/services")}
                 >
                   Browse Services
@@ -158,7 +149,9 @@ function ProviderDashboard() {
       </main>
 
       <footer className={shared.footer}>
-        <span className={shared.footerTag}>© 2025 ServiceSphere</span>
+        <span className={shared.footerTag}>
+          {"\u00A9"} {new Date().getFullYear()} ServiceSphere
+        </span>
         <span className={shared.footerTag}>Photo by Yusuf P on Pexels</span>
       </footer>
     </div>
