@@ -41,6 +41,10 @@ mongoose
 app.get("/", (req, res) => {
   res.send("ServiceSphere API running");
 });
+// DEBUG ROUTE (temporary)
+app.get("/debug", (req, res) => {
+  res.send("NEW VERSION DEPLOYED");
+})
 
 // routes
 app.use("/api/auth", authRoutes);
