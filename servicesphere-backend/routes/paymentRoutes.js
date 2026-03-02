@@ -11,4 +11,12 @@ router.post(
   paymentController.createCheckoutSession
 );
 
+// Confirm payment success (customer only)
+router.post(
+  "/confirm",
+  auth,
+  requireRole("customer"),
+  paymentController.confirmPayment
+);
+
 module.exports = router;

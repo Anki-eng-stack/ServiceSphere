@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import shared from "../styles/shared.module.css";
 import AppNavbar from "../components/AppNavbar";
+import PageLoader from "../components/PageLoader";
 
 function BookService() {
   const { id } = useParams();
@@ -12,6 +13,7 @@ function BookService() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [error, setError] = useState("");
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     if (user?.role === "provider") {
@@ -22,7 +24,7 @@ function BookService() {
     const fetchService = async () => {
       try {
         const res = await api.get(`/services/${id}`);
-        setService(res.data);
+        setService(res.data?.service || res.data);
       } catch (err) {
         setError("Failed to load service");
       }
@@ -33,24 +35,34 @@ function BookService() {
   const handleBooking = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post("/bookings", { serviceId: id, date, time });
-      console.log("BOOKING RESPONSE:", res.data);
-      const bookingId = res.data.booking._id;
-      navigate(`/chat/${bookingId}`);
+      setProcessing(true);
+      setError("");
+
+      const bookingRes = await api.post("/bookings", { serviceId: id, date, time });
+      const bookingId = bookingRes.data?.booking?._id;
+      if (!bookingId) {
+        throw new Error("Booking created but booking id is missing");
+      }
+
+      const paymentRes = await api.post("/payments/stripe", { bookingId });
+      const checkoutUrl = paymentRes.data?.url;
+      if (!checkoutUrl) {
+        throw new Error("Could not start payment checkout");
+      }
+
+      window.location.href = checkoutUrl;
     } catch (err) {
-      setError(err.response?.data?.message || "Booking failed");
+      setError(err.response?.data?.message || err.message || "Booking failed");
+      setProcessing(false);
     }
   };
 
-  /* Loading state */
   if (!service) {
     return (
       <div className={shared.page}>
         <AppNavbar />
         <main className={shared.mainCenter}>
-          <p className={shared.heroSubtitle}>
-            {error || "Loading service details…"}
-          </p>
+          {error ? <p className={shared.error}>{error}</p> : <PageLoader label="Loading service details..." />}
         </main>
       </div>
     );
@@ -73,7 +85,6 @@ function BookService() {
           noValidate
           style={{ maxWidth: 420 }}
         >
-          {/* Service summary */}
           <div>
             <h3
               style={{
@@ -100,16 +111,10 @@ function BookService() {
             {service.category && (
               <span className={shared.badge}>{service.category}</span>
             )}
-            <span
-              className={shared.priceTag}
-              style={{ fontSize: "1.05rem" }}
-            >
-              ₹{service.price}
+            <span className={shared.priceTag} style={{ fontSize: "1.05rem" }}>
+              Rs {service.price}
             </span>
-            <span
-              className={shared.dataCardMeta}
-              style={{ marginLeft: "auto" }}
-            >
+            <span className={shared.dataCardMeta} style={{ marginLeft: "auto" }}>
               {service.location}
             </span>
           </div>
@@ -146,14 +151,16 @@ function BookService() {
             />
           </div>
 
-          <button type="submit" className={shared.btnPrimary}>
-            Confirm Booking →
+          <button type="submit" className={shared.btnPrimary} disabled={processing}>
+            {processing ? "Redirecting to payment..." : "Continue to Payment ->"}
           </button>
         </form>
       </main>
 
       <footer className={shared.footer}>
-        <span className={shared.footerTag}>© 2025 ServiceSphere</span>
+        <span className={shared.footerTag}>
+          {"\u00A9"} {new Date().getFullYear()} ServiceSphere
+        </span>
         <span className={shared.footerTag}>Photo by Yusuf P on Pexels</span>
       </footer>
     </div>

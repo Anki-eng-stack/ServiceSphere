@@ -52,15 +52,15 @@ function ProviderDashboard() {
   }, []);
 
   const stats = useMemo(() => {
+    const paid = bookings.filter((b) => b.status === "paid").length;
     const accepted = bookings.filter((b) => b.status === "accepted").length;
     const completed = bookings.filter((b) => b.status === "completed").length;
-    const pending = bookings.filter((b) => b.status === "pending").length;
     const cancelled = bookings.filter((b) => b.status === "cancelled").length;
 
     return [
       { label: "Active Services", value: services.length },
       { label: "Total Bookings", value: bookings.length },
-      { label: "Pending Requests", value: pending },
+      { label: "Paid Requests", value: paid },
       { label: "Accepted Jobs", value: accepted },
       { label: "Completed Jobs", value: completed },
       { label: "Cancelled", value: cancelled },

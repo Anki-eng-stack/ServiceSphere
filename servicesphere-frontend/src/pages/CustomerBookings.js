@@ -39,6 +39,7 @@ function CustomerBookings() {
   const getStatusClass = (status) => {
     if (status === "accepted") return shared.badgeSuccess;
     if (status === "completed") return shared.badgeSuccess;
+    if (status === "paid") return shared.badgePending;
     if (status === "pending") return shared.badgePending;
     if (status === "cancelled") return shared.badgeDanger;
     return shared.badge;

@@ -19,8 +19,8 @@ function ProviderBookings() {
         setError("");
         const res = await api.get("/bookings/my");
         const allBookings = Array.isArray(res.data.bookings) ? res.data.bookings : [];
-        const activeBookings = allBookings.filter(
-          (booking) => booking.status !== "completed" && booking.status !== "cancelled"
+        const activeBookings = allBookings.filter((booking) =>
+          ["paid", "accepted"].includes(booking.status)
         );
         setBookings(activeBookings);
       } catch (err) {
@@ -35,6 +35,7 @@ function ProviderBookings() {
   const getStatusClass = (status) => {
     if (status === "accepted") return shared.badgeSuccess;
     if (status === "completed") return shared.badgeSuccess;
+    if (status === "paid") return shared.badgePending;
     if (status === "pending") return shared.badgePending;
     if (status === "cancelled") return shared.badgeDanger;
     return shared.badge;
@@ -126,7 +127,7 @@ function ProviderBookings() {
                   <hr className={shared.divider} />
 
                   <div className={shared.actionsRow}>
-                    {booking.status === "pending" && (
+                    {booking.status === "paid" && (
                       <>
                         <button
                           className={shared.btnSuccess}
@@ -134,13 +135,6 @@ function ProviderBookings() {
                           disabled={isActionLoading}
                         >
                           {isActionLoading ? "Updating..." : "Accept Booking"}
-                        </button>
-                        <button
-                          className={shared.btnDanger}
-                          onClick={() => handleStatusAction(booking._id, "reject")}
-                          disabled={isActionLoading}
-                        >
-                          {isActionLoading ? "Updating..." : "Reject Booking"}
                         </button>
                       </>
                     )}

@@ -14,6 +14,19 @@ exports.createBooking = async (req, res) => {
     const service = await Service.findById(serviceId).populate("provider");
     if (!service) return res.status(404).json({ message: "Service not found" });
 
+    // Prevent duplicate active bookings for the same customer + service.
+    const existingActiveBooking = await Booking.findOne({
+      customer: customer._id,
+      service: service._id,
+      status: { $in: ["pending", "paid", "accepted"] }
+    });
+
+    if (existingActiveBooking) {
+      return res.status(400).json({
+        message: "You already have an active booking for this service"
+      });
+    }
+
     const booking = new Booking({
       customer: customer._id,
       provider: service.provider._id,
@@ -73,8 +86,8 @@ exports.acceptBooking = async (req, res) => {
       return res.status(403).json({ message: "Not allowed" });
     }
 
-    if (booking.status !== "pending") {
-      return res.status(400).json({ message: "Only pending bookings can be accepted" });
+    if (booking.status !== "paid") {
+      return res.status(400).json({ message: "Only paid bookings can be accepted" });
     }
 
     booking.status = "accepted";
