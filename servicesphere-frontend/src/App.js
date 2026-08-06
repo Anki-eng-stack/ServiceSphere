@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Services from "./pages/Services";
@@ -11,11 +11,17 @@ import ProviderDashboard from "./pages/ProviderDashboard";
 import CustomerBookings from "./pages/CustomerBookings";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-function App() {
+import Home from "./pages/Home";
+import AppFooter from "./components/AppFooter";
+
+function AppRoutes() {
+  const location = useLocation();
+
   return (
-    <Router>
+    <>
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
@@ -28,6 +34,15 @@ function App() {
         <Route path="/provider/services" element={<ProviderServices />} />
         <Route path="/provider/bookings" element={<ProviderBookings />} />
       </Routes>
+      {location.pathname !== "/" && <AppFooter />}
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppRoutes />
     </Router>
   );
 }
