@@ -1,150 +1,57 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
-import shared from "../styles/shared.module.css";
 import Navbar from "../components/Navbar";
-
-const NAV_LINKS = [
-  { label: "Home", to: "/" },
-  { label: "Services", to: "/services" },
-];
+import AuthLayout from "../components/AuthLayout";
+import styles from "./Auth.module.css";
+import shared from "../styles/shared.module.css";
 
 function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState("customer");
   const [location, setLocation] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
+  const handleRegister = async (event) => {
+    event.preventDefault();
     try {
-      const res = await api.post("/auth/register", {
-        name,
-        email,
-        password,
-        role,
-        location,
-      });
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      navigate(
-        res.data.user?.role === "provider"
-          ? "/provider/dashboard"
-          : "/services"
-      );
-    } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
+      setLoading(true);
+      setError("");
+      const response = await api.post("/auth/register", { name, email, password, role, location });
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      navigate(response.data.user?.role === "provider" ? "/provider/dashboard" : "/services");
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || "We could not create your account. Please review your details.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className={shared.page}>
-      <Navbar links={NAV_LINKS} />
-
-      <main className={shared.mainCenter}>
-        <p className={shared.heroSubtitle}>Start your journey today</p>
-        <h1 className={shared.heroHeading}>
-          <span className={shared.heroItalic}>Create your</span>
-          <span className={shared.heroBold}>account.</span>
-        </h1>
-
-        <form className={shared.glassCard} onSubmit={handleRegister} noValidate>
-          {error && <p className={shared.error}>{error}</p>}
-
-          <div className={shared.inputGroup}>
-            <label className={shared.inputLabel} htmlFor="reg-name">
-              Full Name
-            </label>
-            <input
-              id="reg-name"
-              className={shared.input}
-              type="text"
-              placeholder="John Doe"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
+      <Navbar links={[{ label: "Home", to: "/" }, { label: "Marketplace", to: "/services" }, { label: "Sign in", to: "/login" }]} />
+      <AuthLayout mode="register" title="Create your ServiceSphere account" subtitle="Choose how you want to use the platform. You can start immediately after signup.">
+        <form className={styles.form} onSubmit={handleRegister}>
+          {error && <div className={styles.error} role="alert">{error}</div>}
+          <div className={styles.fieldRow}>
+            <div className={styles.field}><label htmlFor="reg-name">Full name</label><input id="reg-name" autoComplete="name" placeholder="Your full name" value={name} onChange={(event) => setName(event.target.value)} required /></div>
+            <div className={styles.field}><label htmlFor="reg-location">Location</label><input id="reg-location" autoComplete="address-level2" placeholder="City or area" value={location} onChange={(event) => setLocation(event.target.value)} /></div>
           </div>
-
-          <div className={shared.inputGroup}>
-            <label className={shared.inputLabel} htmlFor="reg-email">
-              Email
-            </label>
-            <input
-              id="reg-email"
-              className={shared.input}
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className={shared.inputGroup}>
-            <label className={shared.inputLabel} htmlFor="reg-password">
-              Password
-            </label>
-            <input
-              id="reg-password"
-              className={shared.input}
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className={shared.inputGroup}>
-            <label className={shared.inputLabel} htmlFor="reg-role">
-              I am a
-            </label>
-            <select
-              id="reg-role"
-              className={shared.select}
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-            >
-              <option value="customer">Customer</option>
-              <option value="provider">Service Provider</option>
-            </select>
-          </div>
-
-          <div className={shared.inputGroup}>
-            <label className={shared.inputLabel} htmlFor="reg-location">
-              Location
-            </label>
-            <input
-              id="reg-location"
-              className={shared.input}
-              type="text"
-              placeholder="City, Country"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-            />
-          </div>
-
-          <button type="submit" className={shared.btnPrimary}>
-            Create Account →
-          </button>
-
-          <p className={shared.footNote}>
-            Already have an account?{" "}
-            <Link to="/">Sign in</Link>
-          </p>
+          <div className={styles.field}><label htmlFor="reg-email">Email address</label><input id="reg-email" type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} required /></div>
+          <div className={styles.field}><label htmlFor="reg-password">Password</label><div className={styles.passwordWrap}><input id="reg-password" type={showPassword ? "text" : "password"} autoComplete="new-password" minLength="6" placeholder="At least 6 characters" value={password} onChange={(event) => setPassword(event.target.value)} required /><button type="button" onClick={() => setShowPassword((visible) => !visible)}>{showPassword ? "Hide" : "Show"}</button></div></div>
+          <div className={styles.field}><label htmlFor="reg-role">I want to use ServiceSphere as</label><select id="reg-role" value={role} onChange={(event) => setRole(event.target.value)}><option value="customer">A customer booking services</option><option value="provider">A provider offering services</option></select><p className={styles.roleHelp}>{role === "provider" ? "You will get a provider dashboard for listings and booking requests." : "You will be able to discover services and manage your bookings."}</p></div>
+          <button className={styles.submit} type="submit" disabled={loading}>{loading ? "Creating your account..." : "Create account →"}</button>
+          <p className={styles.accountSwitch}>Already registered? <Link to="/login">Sign in</Link></p>
         </form>
-      </main>
-
-      <footer className={shared.footer}>
-        <span className={shared.footerTag}>© 2025 ServiceSphere</span>
-      </footer>
+      </AuthLayout>
     </div>
   );
 }
-// test change
 
 export default Register;

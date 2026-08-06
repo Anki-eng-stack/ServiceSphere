@@ -68,7 +68,7 @@ function ForgotPassword() {
             Already have OTP? <Link to="/reset-password">Reset Password</Link>
           </p>
           <p className={shared.footNote}>
-            Back to <Link to="/">Sign in</Link>
+            Back to <Link to="/login">Sign in</Link>
           </p>
         </form>
       </main>

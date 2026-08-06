@@ -1,167 +1,105 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import api from "../services/api";
-import shared from "../styles/shared.module.css";
 import AppNavbar from "../components/AppNavbar";
 import PageLoader from "../components/PageLoader";
+import { ArrowLeft, ArrowRight, CalendarDays, Check, Clock3, MapPin, ShieldCheck, UserRound } from "lucide-react";
+import styles from "./Marketplace.module.css";
+import shared from "../styles/shared.module.css";
 
 function BookService() {
   const { id } = useParams();
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user") || "null");
+  const token = localStorage.getItem("token");
   const [service, setService] = useState(null);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [error, setError] = useState("");
   const [processing, setProcessing] = useState(false);
+  const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
     if (user?.role === "provider") {
       navigate("/services", { replace: true });
       return;
     }
-
     const fetchService = async () => {
       try {
-        const res = await api.get(`/services/${id}`);
-        setService(res.data?.service || res.data);
-      } catch (err) {
-        setError("Failed to load service");
+        const response = await api.get(`/services/${id}`);
+        setService(response.data?.service || response.data);
+      } catch (requestError) {
+        setError(requestError.response?.data?.message || "We could not load this service.");
       }
     };
     fetchService();
   }, [id, navigate, user?.role]);
 
-  const handleBooking = async (e) => {
-    e.preventDefault();
+  const handleBooking = async (event) => {
+    event.preventDefault();
+    if (!token) return;
     try {
       setProcessing(true);
       setError("");
-
-      const bookingRes = await api.post("/bookings", { serviceId: id, date, time });
-      const bookingId = bookingRes.data?.booking?._id;
-      if (!bookingId) {
-        throw new Error("Booking created but booking id is missing");
-      }
-
-      const paymentRes = await api.post("/payments/stripe", { bookingId });
-      const checkoutUrl = paymentRes.data?.url;
-      if (!checkoutUrl) {
-        throw new Error("Could not start payment checkout");
-      }
-
-      window.location.href = checkoutUrl;
-    } catch (err) {
-      setError(err.response?.data?.message || err.message || "Booking failed");
+      const bookingResponse = await api.post("/bookings", { serviceId: id, date, time });
+      const bookingId = bookingResponse.data?.booking?._id;
+      if (!bookingId) throw new Error("The booking was created without a reference number.");
+      const paymentResponse = await api.post("/payments/stripe", { bookingId });
+      if (!paymentResponse.data?.url) throw new Error("Payment checkout could not be started.");
+      window.location.href = paymentResponse.data.url;
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || requestError.message || "Booking failed. Please try again.");
       setProcessing(false);
     }
   };
 
   if (!service) {
-    return (
-      <div className={shared.page}>
-        <AppNavbar />
-        <main className={shared.mainCenter}>
-          {error ? <p className={shared.error}>{error}</p> : <PageLoader label="Loading service details..." />}
-        </main>
-      </div>
-    );
+    return <div className={shared.page}><AppNavbar /><main className={shared.mainCenter}>{error ? <div className={styles.state}><h3>Service unavailable</h3><p>{error}</p><Link to="/services">Return to marketplace</Link></div> : <PageLoader label="Loading service details..." />}</main></div>;
   }
 
   return (
     <div className={shared.page}>
       <AppNavbar />
+      <main className={styles.bookMain}>
+        <Link to="/services" className={styles.backLink}><ArrowLeft size={15} /> Back to marketplace</Link>
+        <div className={styles.bookLayout}>
+          <section className={styles.servicePanel}>
+            <div className={styles.serviceCover}>
+              <span className={styles.badge}>{service.category || "Professional service"}</span>
+              <h1>{service.title}</h1>
+              <p>{service.description || "Discuss your requirements directly with the provider after booking."}</p>
+            </div>
+            <div className={styles.details}>
+              <div className={styles.detailsGrid}>
+                <div className={styles.detailItem}><span>Price</span><strong>₹{service.price}</strong></div>
+                <div className={styles.detailItem}><span><MapPin size={12} /> Location</span><strong>{service.location || "Flexible"}</strong></div>
+                <div className={styles.detailItem}><span><UserRound size={12} /> Provider</span><strong>{service.provider?.name || "Service professional"}</strong></div>
+              </div>
+              <h2 className={styles.howTitle}>What happens next</h2>
+              <div className={styles.timeline}>
+                <div className={styles.timelineItem}><span className={styles.timelineDot}><CalendarDays size={13} /></span><div><h3>Choose your preferred time</h3><p>Select a date and time that works for your schedule.</p></div></div>
+                <div className={styles.timelineItem}><span className={styles.timelineDot}><ShieldCheck size={13} /></span><div><h3>Complete secure checkout</h3><p>Your booking reference is created before payment.</p></div></div>
+                <div className={styles.timelineItem}><span className={styles.timelineDot}><Check size={13} /></span><div><h3>Coordinate in booking chat</h3><p>Keep details and updates together after confirmation.</p></div></div>
+              </div>
+            </div>
+          </section>
 
-      <main className={shared.mainCenter}>
-        <p className={shared.heroSubtitle}>Confirm your appointment</p>
-        <h1 className={shared.heroHeading}>
-          <span className={shared.heroItalic}>Book a</span>
-          <span className={shared.heroBold}>service.</span>
-        </h1>
-
-        <form
-          className={shared.glassCard}
-          onSubmit={handleBooking}
-          noValidate
-          style={{ maxWidth: 420 }}
-        >
-          <div>
-            <h3
-              style={{
-                color: "var(--color-text-light)",
-                fontSize: "1.05rem",
-                fontWeight: 700,
-                marginBottom: 6,
-              }}
-            >
-              {service.title}
-            </h3>
-            <p
-              style={{
-                color: "var(--color-text-muted)",
-                fontSize: "0.82rem",
-                lineHeight: 1.55,
-              }}
-            >
-              {service.description}
-            </p>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            {service.category && (
-              <span className={shared.badge}>{service.category}</span>
+          <aside className={styles.bookingCard}>
+            <div className={styles.bookingHead}><div><h2>Schedule this service</h2><p>Pick your preferred appointment.</p></div><div className={styles.bookingPrice}><span>Total</span><strong>₹{service.price}</strong></div></div>
+            {!token ? (
+              <div className={styles.authNotice}>You need an account before you can book and pay for a service.<br /><Link to="/login">Sign in to continue →</Link></div>
+            ) : (
+              <form className={styles.bookingForm} onSubmit={handleBooking}>
+                {error && <div className={styles.bookError} role="alert">{error}</div>}
+                <div className={styles.bookingField}><label htmlFor="book-date"><CalendarDays size={14} /> Preferred date</label><input id="book-date" type="date" min={today} value={date} onChange={(event) => setDate(event.target.value)} required /></div>
+                <div className={styles.bookingField}><label htmlFor="book-time"><Clock3 size={14} /> Preferred time</label><input id="book-time" type="time" value={time} onChange={(event) => setTime(event.target.value)} required /></div>
+                <div className={styles.secureNote}><ShieldCheck size={17} /><span>Your booking details are saved securely and you will review payment in checkout.</span></div>
+                <button className={styles.submitButton} type="submit" disabled={processing || !date || !time}>{processing ? "Opening secure checkout..." : <span>Continue to payment <ArrowRight size={15} /></span>}</button>
+              </form>
             )}
-            <span className={shared.priceTag} style={{ fontSize: "1.05rem" }}>
-              Rs {service.price}
-            </span>
-            <span className={shared.dataCardMeta} style={{ marginLeft: "auto" }}>
-              {service.location}
-            </span>
-          </div>
-
-          <hr className={shared.divider} />
-
-          {error && <p className={shared.error}>{error}</p>}
-
-          <div className={shared.inputGroup}>
-            <label className={shared.inputLabel} htmlFor="book-date">
-              Date
-            </label>
-            <input
-              id="book-date"
-              className={shared.input}
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className={shared.inputGroup}>
-            <label className={shared.inputLabel} htmlFor="book-time">
-              Time
-            </label>
-            <input
-              id="book-time"
-              className={shared.input}
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              required
-            />
-          </div>
-
-          <button type="submit" className={shared.btnPrimary} disabled={processing}>
-            {processing ? "Redirecting to payment..." : "Continue to Payment ->"}
-          </button>
-        </form>
+          </aside>
+        </div>
       </main>
-
-      <footer className={shared.footer}>
-        <span className={shared.footerTag}>
-          {"\u00A9"} {new Date().getFullYear()} ServiceSphere
-        </span>
-      </footer>
     </div>
   );
 }

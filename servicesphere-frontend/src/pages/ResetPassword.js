@@ -99,7 +99,7 @@ function ResetPassword() {
           </button>
 
           <p className={shared.footNote}>
-            Back to <Link to="/">Sign in</Link>
+            Back to <Link to="/login">Sign in</Link>
           </p>
         </form>
       </main>

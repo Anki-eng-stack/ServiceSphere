@@ -26,7 +26,11 @@ function AppNavbar() {
     { label: "Logout", onClick: logout, danger: true },
   ];
 
-  const guestLinks = [{ label: "Marketplace", to: "/services" }];
+  const guestLinks = [
+    { label: "Marketplace", to: "/services" },
+    { label: "Sign in", to: "/login" },
+    { label: "Create account", to: "/register" },
+  ];
   const links =
     role === "provider"
       ? providerLinks
