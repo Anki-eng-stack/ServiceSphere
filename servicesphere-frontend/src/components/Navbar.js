@@ -1,25 +1,18 @@
 import { Link } from "react-router-dom";
 import shared from "../styles/shared.module.css";
 
-/**
- * Shared Navbar component.
- * links: Array of { label, to?, onClick?, danger? }
- *   - If `to` is provided → renders a <Link>
- *   - If `onClick` is provided → renders a pill <button>
- *   - `danger` flag adds red tint to pill buttons
- */
 function Navbar({ links = [] }) {
   return (
-    <nav className={shared.navbar}>
+    <nav className={shared.navbar} aria-label="Primary navigation">
       <Link to="/" className={shared.logo}>
         service<span className={shared.logoStrong}>sphere</span>
-        <sup style={{ fontSize: "0.44em", marginLeft: "1px", opacity: 0.65 }}>®</sup>
+        <sup className={shared.trademark} aria-label="registered trademark">®</sup>
       </Link>
 
       {links.length > 0 && (
         <ul className={shared.navLinks}>
-          {links.map((link, i) => (
-            <li key={i}>
+          {links.map((link) => (
+            <li key={link.label}>
               {link.onClick ? (
                 <button
                   className={
@@ -32,7 +25,7 @@ function Navbar({ links = [] }) {
                   {link.label}
                 </button>
               ) : (
-                <Link to={link.to}>{link.label}</Link>
+                <Link to={link.to} className={shared.navLink}>{link.label}</Link>
               )}
             </li>
           ))}
